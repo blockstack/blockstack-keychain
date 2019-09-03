@@ -52,7 +52,7 @@ export default class Wallet {
     const backupPhrase = generateMnemonic(STRENGTH, randomBytes)
     const seedBuffer = await mnemonicToSeed(backupPhrase)
     const masterKeychain = fromSeed(seedBuffer)
-    const ciphertextBuffer = await encrypt(new Buffer(backupPhrase), password)
+    const ciphertextBuffer = await encrypt(Buffer.from(backupPhrase), password)
     const encryptedBackupPhrase = ciphertextBuffer.toString()
     return this.createAccount(encryptedBackupPhrase, masterKeychain)
   }
@@ -63,7 +63,7 @@ export default class Wallet {
     }
     const seedBuffer = await mnemonicToSeed(backupPhrase)
     const masterKeychain = fromSeed(seedBuffer)
-    const ciphertextBuffer = await encrypt(new Buffer(backupPhrase), password)
+    const ciphertextBuffer = await encrypt(Buffer.from(backupPhrase), password)
     const encryptedBackupPhrase = ciphertextBuffer.toString()
     return this.createAccount(encryptedBackupPhrase, masterKeychain)
   }

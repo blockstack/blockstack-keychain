@@ -1,10 +1,12 @@
 import { createHmac, pbkdf2Sync, createHash, createDecipheriv } from 'crypto-browserify'
-import triplesec from 'triplesec'
-import bip39 from 'bip39'
+import * as triplesec from 'triplesec'
+import { entropyToMnemonic, validateMnemonic } from 'bip39'
 // import { Buffer } from "buffer/"
 
+// eslint-disable-next-line @typescript-eslint/require-await
 async function denormalizeMnemonic(normalizedMnemonic: string) {
-  return bip39.entropyToMnemonic(normalizedMnemonic)
+  // Note: Future-proofing with async wrappers around any synchronous cryptographic code.
+  return entropyToMnemonic(normalizedMnemonic)
 }
 
 async function decryptMnemonic(dataBuffer: Buffer, password: string) {
@@ -19,11 +21,11 @@ async function decryptMnemonic(dataBuffer: Buffer, password: string) {
   const iv = keysAndIV.slice(32, 48)
 
   const decipher = createDecipheriv('aes-128-cbc', encKey, iv)
-  let plaintext = decipher.update(cipherText, '', 'hex')
+  let plaintext = decipher.update(cipherText).toString('hex')
   plaintext += decipher.final('hex')
 
   const hmac = createHmac('sha256', macKey)
-  hmac.write(hmacPayload)
+  hmac.update(hmacPayload)
   const hmacDigest = hmac.digest()
 
   // hash both hmacSig and hmacDigest so string comparison time
@@ -44,7 +46,7 @@ async function decryptMnemonic(dataBuffer: Buffer, password: string) {
   }
 
   const mnemonic = await denormalizeMnemonic(plaintext)
-  if (!bip39.validateMnemonic(mnemonic)) {
+  if (!validateMnemonic(mnemonic)) {
     throw new Error('Wrong password (invalid plaintext)')
   }
 
@@ -60,7 +62,7 @@ async function decryptLegacy(dataBuffer: Buffer, password: string): Promise<Buff
       },
       (err, plaintextBuffer) => {
         if (!err) {
-          resolve(plaintextBuffer)
+          resolve(plaintextBuffer as Buffer)
         } else {
           reject(err)
         }
