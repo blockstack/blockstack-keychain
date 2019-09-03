@@ -1,21 +1,24 @@
-import { BIP32Interface } from 'bip32'
-import { getAddress } from '../utils'
+import { BIP32Interface } from 'bip32';
+import { getAddress } from '../utils';
 
 export default class AppNode {
-  hdNode: BIP32Interface
+  hdNode: BIP32Interface;
 
-  appDomain: string
+  appDomain: string;
 
   constructor(hdNode: BIP32Interface, appDomain: string) {
-    this.hdNode = hdNode
-    this.appDomain = appDomain
+    this.hdNode = hdNode;
+    this.appDomain = appDomain;
   }
 
   getAppPrivateKey() {
-    return this.hdNode.privateKey.toString('hex')
+    if (!this.hdNode.privateKey) {
+      throw new Error('Node does not have private key');
+    }
+    return this.hdNode.privateKey.toString('hex');
   }
 
   getAddress() {
-    return getAddress(this.hdNode)
+    return getAddress(this.hdNode);
   }
 }

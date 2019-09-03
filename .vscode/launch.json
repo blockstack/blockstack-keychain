@@ -7,7 +7,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "test",
+      "name": "Jest",
       "args": [
         "--inspect-brk",
         "${workspaceRoot}/node_modules/.bin/jest",
