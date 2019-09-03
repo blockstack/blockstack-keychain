@@ -37,7 +37,7 @@ module.exports = {
     }],
     "@typescript-eslint/member-delimiter-style": ["error", {
       "multiline": {
-        "delimiter": "semi",
+        "delimiter": "none",
         "requireLast": true
       },
       "singleline": {
@@ -47,7 +47,7 @@ module.exports = {
     }],
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/array-type": "error",
-    "@typescript-eslint/semi": "error",
+    "@typescript-eslint/semi": ["error", "never"],
     "@typescript-eslint/no-misused-promises": "error",
     "@typescript-eslint/no-floating-promises": "error",
     "@typescript-eslint/require-await": "error",
