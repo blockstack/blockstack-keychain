@@ -22,8 +22,6 @@ module.exports = {
     "quotes": [2, "single"],
     "eol-last": 2,
     "no-mixed-requires": 0,
-    "no-extra-boolean-cast": 0,
-    "no-undef": 2,
     "no-var": 2,
     "no-param-reassign": "error",
     "brace-style": 2,
