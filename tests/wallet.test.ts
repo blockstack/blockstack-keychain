@@ -5,12 +5,12 @@ describe('Restoring a wallet', () => {
   test('restores an existing wallet and keychain', async () => {
     // const store = mockStore({});
     const password = 'password'
-    const backupPhrase =      'sound idle panel often situate develop unit text design antenna '
+    const backupPhrase = 'sound idle panel often situate develop unit text design antenna '
       + 'vendor screen opinion balcony share trigger accuse scatter visa uniform brass '
       + 'update opinion media'
-    const bitcoinPublicKeychain =      'xpub6Br2scNTh9Luk2VPebfEvjbWWC5WhvxpxgK8ap2qhYTS4xvZu'
+    const bitcoinPublicKeychain = 'xpub6Br2scNTh9Luk2VPebfEvjbWWC5WhvxpxgK8ap2qhYTS4xvZu'
       + '8Y3G1npmx8DdvwUdCbtNb7qNLyTChKMbY8dThLV5Zvdq9AojQjxrM6gTC8'
-    const identityPublicKeychain =      'xpub6B6tCCb8T5eXUKVYUoppmSi5KhNRboRJUwqHavxdvQTncfmB'
+    const identityPublicKeychain = 'xpub6B6tCCb8T5eXUKVYUoppmSi5KhNRboRJUwqHavxdvQTncfmB'
       + 'NFCX4Nq9w8DsfuS6AYPpBYRuS3dcUuyF8mQtwEydAEN3A4Cx6HDy58jpKEb'
     const firstBitcoinAddress = '112FogMTesWmLzkWbtKrSg3p9LK6Lucn4s'
     const identityAddresses = ['1JeTQ5cQjsD57YGcsVFhwT7iuQUXJR6BSk']
