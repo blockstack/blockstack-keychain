@@ -34,6 +34,10 @@ describe('Restoring a wallet', () => {
     expect(wallet.firstBitcoinAddress).toEqual(firstBitcoinAddress)
     expect(wallet.identityAddresses).toEqual(identityAddresses)
     expect(wallet.identityKeypairs).toEqual(identityKeypairs)
+    expect(wallet.identities.length).toEqual(1)
+    const [identity] = wallet.identities
+    expect(identity.address).toEqual(identityAddresses[0])
+    expect(identity.keyPair).toEqual(identityKeypairs[0])
   })
 
   test('generates and restores the same wallet', async () => {
@@ -44,13 +48,13 @@ describe('Restoring a wallet', () => {
     // const identityPublicKeychain = generated.identityPublicKeychain
     // const bitcoinPublicKeychain = generated.bitcoinPublicKeychain
 
-    console.log('about to encyrpt');
+    console.log('about to encyrpt')
     
-    const plainTextBuffer = await decrypt(Buffer.from(encryptedBackupPhrase, "hex"), password);
-    console.log('decrypted');
+    const plainTextBuffer = await decrypt(Buffer.from(encryptedBackupPhrase, 'hex'), password)
+    console.log('decrypted')
     
 
-    const backupPhrase = plainTextBuffer.toString();
+    const backupPhrase = plainTextBuffer.toString()
 
     const restored = await Wallet.restore(password, backupPhrase)
 

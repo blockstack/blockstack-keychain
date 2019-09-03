@@ -4,6 +4,7 @@ import { randomBytes } from 'crypto-browserify'
 
 import { getBlockchainIdentities, IdentityKeyPair } from './utils'
 import { encrypt } from './encryption/encrypt'
+import Identity from './identity'
 
 interface ConstructorOptions {
   identityPublicKeychain: string
@@ -21,6 +22,7 @@ export default class Wallet {
   identityKeypairs: IdentityKeyPair[]
   identityAddresses: string[]
   identityPublicKeychain: string
+  identities: Identity[]
 
   constructor({
     encryptedBackupPhrase,
@@ -36,6 +38,13 @@ export default class Wallet {
     this.firstBitcoinAddress = firstBitcoinAddress
     this.identityKeypairs = identityKeypairs
     this.identityAddresses = identityAddresses
+    const identities: Identity[] = []
+    identityKeypairs.forEach((keyPair, index) => {
+      const address = identityAddresses[index]
+      const identity = new Identity({ keyPair, address })
+      identities.push(identity)
+    })
+    this.identities = identities
   }
 
   static async generate(password: string) {
