@@ -8,7 +8,8 @@
     "rootDir": "./src",
     "strict": true,
     "lib": [
-      "es2017"
+      "es2017",
+      "dom"
     ],
     "noImplicitAny": true,
     "sourceMap": true
