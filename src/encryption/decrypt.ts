@@ -1,10 +1,10 @@
-import { createHmac, pbkdf2Sync, createHash, createDecipheriv } from 'crypto-browserify'
+import { createHmac, pbkdf2Sync, createHash, createDecipheriv } from 'crypto'
 import triplesec from 'triplesec'
-import bip39 from 'bip39'
+import { entropyToMnemonic, validateMnemonic } from 'bip39'
 // import { Buffer } from "buffer/"
 
 async function denormalizeMnemonic(normalizedMnemonic: string) {
-  return bip39.entropyToMnemonic(normalizedMnemonic)
+  return entropyToMnemonic(normalizedMnemonic)
 }
 
 async function decryptMnemonic(dataBuffer: Buffer, password: string) {
@@ -19,11 +19,11 @@ async function decryptMnemonic(dataBuffer: Buffer, password: string) {
   const iv = keysAndIV.slice(32, 48)
 
   const decipher = createDecipheriv('aes-128-cbc', encKey, iv)
-  let plaintext = decipher.update(cipherText, '', 'hex')
+  let plaintext = decipher.update(cipherText).toString('hex')
   plaintext += decipher.final('hex')
 
   const hmac = createHmac('sha256', macKey)
-  hmac.write(hmacPayload)
+  hmac.update(hmacPayload)
   const hmacDigest = hmac.digest()
 
   // hash both hmacSig and hmacDigest so string comparison time
@@ -44,7 +44,7 @@ async function decryptMnemonic(dataBuffer: Buffer, password: string) {
   }
 
   const mnemonic = await denormalizeMnemonic(plaintext)
-  if (!bip39.validateMnemonic(mnemonic)) {
+  if (!validateMnemonic(mnemonic)) {
     throw new Error('Wrong password (invalid plaintext)')
   }
 

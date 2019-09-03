@@ -5,7 +5,7 @@ import {
   createCipheriv,
   createHmac,
   createHash
-} from 'crypto-browserify'
+} from 'crypto'
 
 async function normalizeMnemonic(mnemonic: string) {
   return mnemonicToEntropy(mnemonic)
@@ -21,10 +21,8 @@ async function encryptMnemonic(
   }
 
   // normalize plaintext to fixed length byte string
-  const plaintextNormalized = Buffer.from(
-    await normalizeMnemonic(mnemonic),
-    'hex'
-  )
+  const normalizedMnemonic = await normalizeMnemonic(mnemonic)
+  const plaintextNormalized = Buffer.from(normalizedMnemonic, 'hex')
 
   // AES-128-CBC with SHA256 HMAC
   const salt = randomBytes(16)
@@ -34,13 +32,13 @@ async function encryptMnemonic(
   const iv = keysAndIV.slice(32, 48)
 
   const cipher = createCipheriv('aes-128-cbc', encKey, iv)
-  let cipherText = cipher.update(plaintextNormalized, '', 'hex')
+  let cipherText = cipher.update(plaintextNormalized).toString('hex')
   cipherText += cipher.final('hex')
 
   const hmacPayload = Buffer.concat([salt, Buffer.from(cipherText, 'hex')])
 
   const hmac = createHmac('sha256', macKey)
-  hmac.write(hmacPayload)
+  hmac.update(hmacPayload)
   const hmacDigest = hmac.digest()
 
   return Buffer.concat([salt, hmacDigest, Buffer.from(cipherText, 'hex')])
@@ -54,7 +52,8 @@ export async function encryptMain(mnemonic: string, password: string) {
 
 export async function encrypt(plaintextBuffer: Buffer, password: string) {
   const mnemonic = plaintextBuffer.toString()
-  return encryptMain(mnemonic, password)
+  const encryptedMnemonicHex = await encryptMain(mnemonic, password)
+  return encryptedMnemonicHex
   // const encryptedBuffer = await encryptMnemonic(mnemonic, password);
   // return encryptedBuffer.toString("hex");
 }

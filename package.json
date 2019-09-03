@@ -6,8 +6,8 @@
   "author": "Hank Stoever",
   "license": "MIT",
   "devDependencies": {
-    "@types/bip39": "^2.4.2",
     "@types/jest": "^24.0.18",
+    "@types/node": "^10.14.17",
     "@types/triplesec": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",

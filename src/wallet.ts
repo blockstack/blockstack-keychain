@@ -1,6 +1,6 @@
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from 'bip39'
 import { fromSeed, BIP32Interface } from 'bip32'
-import { randomBytes } from 'crypto-browserify'
+import { randomBytes } from 'crypto'
 
 import { getBlockchainIdentities, IdentityKeyPair } from './utils'
 import { encrypt } from './encryption/encrypt'
@@ -43,7 +43,7 @@ export default class Wallet {
     const backupPhrase = generateMnemonic(STRENGTH, randomBytes)
     const seedBuffer = await mnemonicToSeed(backupPhrase)
     const masterKeychain = fromSeed(seedBuffer)
-    const ciphertextBuffer = await encrypt(new Buffer(backupPhrase), password)
+    const ciphertextBuffer = await encrypt(Buffer.from(backupPhrase), password)
     const encryptedBackupPhrase = ciphertextBuffer.toString()
     return this.createAccount(encryptedBackupPhrase, masterKeychain)
   }
@@ -54,7 +54,7 @@ export default class Wallet {
     }
     const seedBuffer = await mnemonicToSeed(backupPhrase)
     const masterKeychain = fromSeed(seedBuffer)
-    const ciphertextBuffer = await encrypt(new Buffer(backupPhrase), password)
+    const ciphertextBuffer = await encrypt(Buffer.from(backupPhrase), password)
     const encryptedBackupPhrase = ciphertextBuffer.toString()
     return this.createAccount(encryptedBackupPhrase, masterKeychain)
   }
