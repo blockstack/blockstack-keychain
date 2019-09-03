@@ -108,7 +108,7 @@ export function deriveIdentityKeyPair(identityOwnerAddressNode: IdentityAddressO
 }
 
 export function getBlockchainIdentities(
-  masterKeychain: BIP32Interface, 
+  masterKeychain: BIP32Interface,
   identitiesToGenerate: number) {
   const identityPrivateKeychainNode = getIdentityPrivateKeychain(
     masterKeychain
