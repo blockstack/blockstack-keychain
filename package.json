@@ -33,6 +33,7 @@
     "bip32": "^2.0.4",
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.5",
+    "blockstack": "^19.3.0",
     "buffer": "^5.4.2",
     "crypto-browserify": "^3.12.0",
     "triplesec": "^3.0.25"
