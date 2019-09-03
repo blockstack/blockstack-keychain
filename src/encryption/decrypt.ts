@@ -1,7 +1,6 @@
 import { createHmac, pbkdf2Sync, createHash, createDecipheriv } from 'crypto-browserify'
 import * as triplesec from 'triplesec'
 import { entropyToMnemonic, validateMnemonic } from 'bip39'
-// import { Buffer } from "buffer/"
 
 // eslint-disable-next-line @typescript-eslint/require-await
 async function denormalizeMnemonic(normalizedMnemonic: string) {

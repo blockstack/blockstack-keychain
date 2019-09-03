@@ -14,7 +14,7 @@ export default class Identity {
     this.address = address
   }
 
-  async makeAuthResponse({ appDomain, gaiaUrl }: { appDomain: string, gaiaUrl: string }) {
+  async makeAuthResponse({ appDomain, gaiaUrl }: { appDomain: string; gaiaUrl: string; }) {
     const appPrivateKey = this.appPrivateKey(appDomain)
     const hubPrefix = await getHubPrefix(gaiaUrl)
     const profileUrl = await this.profileUrl(hubPrefix)
@@ -33,7 +33,9 @@ export default class Identity {
     return appPrivateKey
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async profileUrl(gaiaUrl: string) {
+    // future proofing for code that may require network requests to find profile
     return `${gaiaUrl}/${this.address}/profile.json`
   }
 }

@@ -1,5 +1,4 @@
 import Wallet from '../src/wallet'
-import Identity from '../src/identity'
 
 const getIdentity = async () => {
   const seed = 'sound idle panel often situate develop unit text design antenna '
@@ -15,7 +14,7 @@ test('generates an auth response', async () => {
   const identity = await getIdentity()
   const appDomain = 'https://banter.pub'
   const gaiaUrl = 'https://hub.blockstack.org'
-  const authResponse = await identity.makeAuthResponse({ appDomain, gaiaUrl })
+  await identity.makeAuthResponse({ appDomain, gaiaUrl })
   // console.log(authResponse)
 })
 
