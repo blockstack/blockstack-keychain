@@ -4,7 +4,7 @@ import {
   pbkdf2Sync,
   createCipheriv,
   createHmac
-} from 'crypto';
+} from 'crypto-browserify';
 
 // eslint-disable-next-line @typescript-eslint/require-await
 async function normalizeMnemonic(mnemonic: string) {

@@ -1,5 +1,5 @@
 import { BIP32Interface } from 'bip32';
-import { createHash } from 'crypto';
+import { createHash } from 'crypto-browserify';
 import { hashCode } from '../utils';
 import AppNode from './app-node';
 

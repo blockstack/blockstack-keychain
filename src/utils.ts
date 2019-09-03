@@ -1,6 +1,6 @@
 import { BIP32Interface } from 'bip32';
 import { address, networks, crypto } from 'bitcoinjs-lib';
-import { createHash } from 'crypto';
+import { createHash } from 'crypto-browserify';
 import IdentityAddressOwnerNode from './nodes/identity-address-owner-node';
 
 const IDENTITY_KEYCHAIN = 888;

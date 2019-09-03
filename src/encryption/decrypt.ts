@@ -1,4 +1,4 @@
-import { createHmac, pbkdf2Sync, createHash, createDecipheriv } from 'crypto';
+import { createHmac, pbkdf2Sync, createHash, createDecipheriv } from 'crypto-browserify';
 import * as triplesec from 'triplesec';
 import { entropyToMnemonic, validateMnemonic } from 'bip39';
 // import { Buffer } from "buffer/"

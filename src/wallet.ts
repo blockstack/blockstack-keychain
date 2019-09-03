@@ -1,6 +1,6 @@
 import { generateMnemonic, mnemonicToSeed, validateMnemonic } from 'bip39';
 import { fromSeed, BIP32Interface } from 'bip32';
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'crypto-browserify';
 
 import { getBlockchainIdentities, IdentityKeyPair } from './utils';
 import { encrypt } from './encryption/encrypt';
