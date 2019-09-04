@@ -43,13 +43,6 @@ export default class Identity {
       undefined,
       associationToken
     )
-
-    // return {
-    //   appPrivateKey,
-    //   profileUrl,
-    //   appBucketUrl,
-    //   associationToken
-    // }
   }
 
   appPrivateKey(appDomain: string) {
