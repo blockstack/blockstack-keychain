@@ -1,8 +1,8 @@
 import { fromBase58 } from 'bip32'
-import { getAppBucketUrl } from 'blockstack'
+import { getAppBucketUrl, getPublicKeyFromPrivate, makeAuthResponse } from 'blockstack'
 
 import { IdentityKeyPair } from './utils/index'
-import { getHubPrefix } from './utils/gaia'
+import { getHubPrefix, makeGaiaAssociationToken } from './utils/gaia'
 import AppsNode from './nodes/apps-node'
 
 export default class Identity {
@@ -14,16 +14,42 @@ export default class Identity {
     this.address = address
   }
 
-  async makeAuthResponse({ appDomain, gaiaUrl }: { appDomain: string; gaiaUrl: string; }) {
+  async makeAuthResponse({ appDomain, gaiaUrl, transitPublicKey, profile }: { 
+    appDomain: string
+    gaiaUrl: string
+    transitPublicKey: string
+    profile?: {}
+  }) {
     const appPrivateKey = this.appPrivateKey(appDomain)
     const hubPrefix = await getHubPrefix(gaiaUrl)
     const profileUrl = await this.profileUrl(hubPrefix)
-    const appBucketUrl = await getAppBucketUrl(gaiaUrl, appPrivateKey)
-    return {
+    // const appBucketUrl = await getAppBucketUrl(gaiaUrl, appPrivateKey)
+
+    const compressedAppPublicKey = getPublicKeyFromPrivate(appPrivateKey.slice(0, 64))
+    const associationToken = makeGaiaAssociationToken(this.keyPair.key, compressedAppPublicKey)
+
+    return makeAuthResponse(
+      this.keyPair.key,
+      profile || {},
+      '',
+      {
+        profileUrl
+      },
+      undefined,
       appPrivateKey,
-      profileUrl,
-      appBucketUrl
-    }
+      undefined,
+      transitPublicKey,
+      gaiaUrl,
+      undefined,
+      associationToken
+    )
+
+    // return {
+    //   appPrivateKey,
+    //   profileUrl,
+    //   appBucketUrl,
+    //   associationToken
+    // }
   }
 
   appPrivateKey(appDomain: string) {
@@ -36,6 +62,6 @@ export default class Identity {
   // eslint-disable-next-line @typescript-eslint/require-await
   async profileUrl(gaiaUrl: string) {
     // future proofing for code that may require network requests to find profile
-    return `${gaiaUrl}/${this.address}/profile.json`
+    return `${gaiaUrl}${this.address}/profile.json`
   }
 }

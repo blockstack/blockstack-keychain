@@ -45,14 +45,8 @@ describe('Restoring a wallet', () => {
     const generated = await Wallet.generate(password)
 
     const encryptedBackupPhrase = generated.encryptedBackupPhrase
-    // const identityPublicKeychain = generated.identityPublicKeychain
-    // const bitcoinPublicKeychain = generated.bitcoinPublicKeychain
 
-    console.log('about to encyrpt')
-    
     const plainTextBuffer = await decrypt(Buffer.from(encryptedBackupPhrase, 'hex'), password)
-    console.log('decrypted')
-    
 
     const backupPhrase = plainTextBuffer.toString()
 
