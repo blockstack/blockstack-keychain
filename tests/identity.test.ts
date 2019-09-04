@@ -27,12 +27,12 @@ test('generates an auth response', async () => {
   const decoded = decodeToken(authResponse)
   const { payload } = decoded as Decoded
   expect(payload.profile_url).toEqual(
-    "https://gaia.blockstack.org/hub/1JeTQ5cQjsD57YGcsVFhwT7iuQUXJR6BSk/profile.json"
-  );
+    'https://gaia.blockstack.org/hub/1JeTQ5cQjsD57YGcsVFhwT7iuQUXJR6BSk/profile.json'
+  )
   const appPrivateKey = decryptPrivateKey(transitPrivateKey, payload.private_key)
   const expectedKey =
-    "6f8b6a170f8b2ee57df5ead49b0f4c8acde05f9e1c4c6ef8223d6a42fabfa314";
-  expect(appPrivateKey).toEqual(expectedKey);
+    '6f8b6a170f8b2ee57df5ead49b0f4c8acde05f9e1c4c6ef8223d6a42fabfa314'
+  expect(appPrivateKey).toEqual(expectedKey)
 })
 
 test('generates an app private key', async () => {

@@ -1,5 +1,5 @@
 import { fromBase58 } from 'bip32'
-import { getAppBucketUrl, getPublicKeyFromPrivate, makeAuthResponse } from 'blockstack'
+import { getPublicKeyFromPrivate, makeAuthResponse } from 'blockstack'
 
 import { IdentityKeyPair } from './utils/index'
 import { getHubPrefix, makeGaiaAssociationToken } from './utils/gaia'
