@@ -6,7 +6,7 @@ import { getBlockchainIdentities, IdentityKeyPair } from './utils'
 import { encrypt } from './encryption/encrypt'
 import Identity from './identity'
 
-interface ConstructorOptions {
+export interface ConstructorOptions {
   identityPublicKeychain: string
   bitcoinPublicKeychain: string
   firstBitcoinAddress: string
