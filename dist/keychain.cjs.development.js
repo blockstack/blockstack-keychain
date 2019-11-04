@@ -483,5 +483,6 @@ var index = {
   Wallet: Wallet
 };
 
+exports.Wallet = Wallet;
 exports.default = index;
 //# sourceMappingURL=keychain.cjs.development.js.map

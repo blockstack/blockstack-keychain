@@ -482,4 +482,5 @@ var index = {
 };
 
 export default index;
+export { Wallet };
 //# sourceMappingURL=keychain.esm.js.map

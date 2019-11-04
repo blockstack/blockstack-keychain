@@ -15,7 +15,7 @@ export interface ConstructorOptions {
   encryptedBackupPhrase: string
 }
 
-export default class Wallet {
+export class Wallet {
   encryptedBackupPhrase: string
   bitcoinPublicKeychain: string
   firstBitcoinAddress: string
@@ -76,3 +76,5 @@ export default class Wallet {
     })
   }
 }
+
+export default Wallet

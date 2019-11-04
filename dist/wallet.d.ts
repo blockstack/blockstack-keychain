@@ -9,7 +9,7 @@ export interface ConstructorOptions {
     identityAddresses: string[];
     encryptedBackupPhrase: string;
 }
-export default class Wallet {
+export declare class Wallet {
     encryptedBackupPhrase: string;
     bitcoinPublicKeychain: string;
     firstBitcoinAddress: string;
@@ -22,3 +22,4 @@ export default class Wallet {
     static restore(password: string, backupPhrase: string): Promise<Wallet>;
     static createAccount(encryptedBackupPhrase: string, masterKeychain: BIP32Interface, identitiesToGenerate?: number): Wallet;
 }
+export default Wallet;
