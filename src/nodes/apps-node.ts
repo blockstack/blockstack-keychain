@@ -1,4 +1,4 @@
-import { BIP32Interface } from 'bip32'
+import { BIP32Interface } from 'bitcoinjs-lib'
 import { createHash } from 'crypto-browserify'
 import { hashCode } from '../utils'
 import AppNode from './app-node'

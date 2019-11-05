@@ -1,5 +1,6 @@
-import { fromBase58 } from 'bip32'
-import { getPublicKeyFromPrivate, makeAuthResponse } from 'blockstack'
+import { bip32 } from 'bitcoinjs-lib'
+import { getPublicKeyFromPrivate } from 'blockstack/lib/keys'
+import { makeAuthResponse } from 'blockstack/lib/auth/authMessages'
 
 import { IdentityKeyPair } from './utils/index'
 import { getHubPrefix, makeGaiaAssociationToken } from './utils/gaia'
@@ -26,7 +27,7 @@ export default class Identity {
     // const appBucketUrl = await getAppBucketUrl(gaiaUrl, appPrivateKey)
 
     const compressedAppPublicKey = getPublicKeyFromPrivate(appPrivateKey.slice(0, 64))
-    const associationToken = makeGaiaAssociationToken(this.keyPair.key, compressedAppPublicKey)
+    const associationToken = await makeGaiaAssociationToken(this.keyPair.key, compressedAppPublicKey)
 
     return makeAuthResponse(
       this.keyPair.key,
@@ -47,7 +48,7 @@ export default class Identity {
 
   appPrivateKey(appDomain: string) {
     const { salt, appsNodeKey } = this.keyPair
-    const appsNode = new AppsNode(fromBase58(appsNodeKey), salt)
+    const appsNode = new AppsNode(bip32.fromBase58(appsNodeKey), salt)
     const appPrivateKey = appsNode.getAppNode(appDomain).getAppPrivateKey()
     return appPrivateKey
   }

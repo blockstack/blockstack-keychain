@@ -1,4 +1,4 @@
-import { BIP32Interface } from 'bip32'
+import { BIP32Interface } from 'bitcoinjs-lib'
 import { getAddress } from '../utils'
 import AppsNode from './apps-node'
 

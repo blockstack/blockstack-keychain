@@ -1,6 +1,6 @@
-import { randomBytes } from 'crypto-browserify'
 import { TokenSigner } from 'jsontokens'
-import { getPublicKeyFromPrivate } from 'blockstack'
+import { getPublicKeyFromPrivate } from 'blockstack/lib/keys'
+import { randomBytes } from 'blockstack/lib/encryption/cryptoRandom'
 
 export const getHubInfo = async (hubUrl: string) => {
   const response = await fetch(`${hubUrl}/hub_info`)
@@ -13,7 +13,7 @@ export const getHubPrefix = async (hubUrl: string) => {
   return read_url_prefix
 }
 
-export const makeGaiaAssociationToken = (secretKeyHex: string, childPublicKeyHex: string ) => {
+export const makeGaiaAssociationToken = async (secretKeyHex: string, childPublicKeyHex: string): Promise<string> => {
   const LIFETIME_SECONDS = 365 * 24 * 3600
   const signerKeyHex = secretKeyHex.slice(0, 64)
   const compressedPublicKeyHex = getPublicKeyFromPrivate(signerKeyHex)
@@ -26,6 +26,7 @@ export const makeGaiaAssociationToken = (secretKeyHex: string, childPublicKeyHex
     salt
   }
 
-  const token = new TokenSigner('ES256K', signerKeyHex).sign(payload)
+  const tokenSigner = new TokenSigner('ES256K', signerKeyHex)
+  const token = await tokenSigner.sign(payload)
   return token
 }
