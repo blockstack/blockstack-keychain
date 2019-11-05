@@ -21,7 +21,7 @@ export default class Identity {
     transitPublicKey: string
     profile?: {}
   }) {
-    const appPrivateKey = this.appPrivateKey(appDomain)
+    const appPrivateKey = await this.appPrivateKey(appDomain)
     const hubPrefix = await getHubPrefix(gaiaUrl)
     const profileUrl = await this.profileUrl(hubPrefix)
     // const appBucketUrl = await getAppBucketUrl(gaiaUrl, appPrivateKey)
@@ -46,10 +46,11 @@ export default class Identity {
     )
   }
 
-  appPrivateKey(appDomain: string) {
+  async appPrivateKey(appDomain: string) {
     const { salt, appsNodeKey } = this.keyPair
     const appsNode = new AppsNode(bip32.fromBase58(appsNodeKey), salt)
-    const appPrivateKey = appsNode.getAppNode(appDomain).getAppPrivateKey()
+    const appNode = await appsNode.getAppNode(appDomain)
+    const appPrivateKey = appNode.getAppPrivateKey()
     return appPrivateKey
   }
 

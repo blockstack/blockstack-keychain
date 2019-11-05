@@ -38,7 +38,7 @@ test('generates an auth response', async () => {
 test('generates an app private key', async () => {
   const expectedKey = '6f8b6a170f8b2ee57df5ead49b0f4c8acde05f9e1c4c6ef8223d6a42fabfa314'
   const identity = await getIdentity()
-  const appPrivateKey = identity.appPrivateKey('https://banter.pub')
+  const appPrivateKey = await identity.appPrivateKey('https://banter.pub')
   expect(appPrivateKey).toEqual(expectedKey)
 })
 

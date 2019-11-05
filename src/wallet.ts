@@ -65,8 +65,8 @@ export class Wallet {
     return this.createAccount(encryptedMnemonicHex, rootNode)
   }
 
-  static createAccount(encryptedBackupPhrase: string, masterKeychain: BIP32Interface, identitiesToGenerate = 1) {
-    const walletAttrs = getBlockchainIdentities(masterKeychain, identitiesToGenerate)
+  static async createAccount(encryptedBackupPhrase: string, masterKeychain: BIP32Interface, identitiesToGenerate = 1) {
+    const walletAttrs = await getBlockchainIdentities(masterKeychain, identitiesToGenerate)
     return new this({
       ...walletAttrs,
       encryptedBackupPhrase

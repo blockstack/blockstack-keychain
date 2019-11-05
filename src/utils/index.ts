@@ -1,7 +1,6 @@
-import { BIP32Interface } from 'bitcoinjs-lib'
-import { address, networks, crypto } from 'bitcoinjs-lib'
-import { createHash } from 'crypto-browserify'
+import { BIP32Interface, address, networks, crypto } from 'bitcoinjs-lib'
 import IdentityAddressOwnerNode from '../nodes/identity-address-owner-node'
+import { createSha2Hash } from 'blockstack/lib/encryption/sha2Hash'
 
 const IDENTITY_KEYCHAIN = 888
 const BLOCKSTACK_ON_BITCOIN = 0
@@ -43,7 +42,7 @@ export function getBitcoinAddressNode(
   return bitcoinKeychain.derive(chain).derive(addressIndex)
 }
 
-export function getIdentityOwnerAddressNode(
+export async function getIdentityOwnerAddressNode(
   identityPrivateKeychain: BIP32Interface,
   identityIndex = 0
 ) {
@@ -51,12 +50,13 @@ export function getIdentityOwnerAddressNode(
     throw new Error('You need the private key to generate identity addresses')
   }
 
-  const publicKeyHex = identityPrivateKeychain
+  const publicKeyHex = Buffer.from(identityPrivateKeychain
     .publicKey
-    .toString('hex')
-  const salt = createHash('sha256')
-    .update(publicKeyHex)
-    .digest('hex')
+    .toString('hex'))
+
+  const sha2Hash = await createSha2Hash()
+  const saltData = await sha2Hash.digest(publicKeyHex, 'sha256')
+  const salt = saltData.toString('hex')
 
   return new IdentityAddressOwnerNode(
     identityPrivateKeychain.deriveHardened(identityIndex),
@@ -107,7 +107,7 @@ export function deriveIdentityKeyPair(identityOwnerAddressNode: IdentityAddressO
   return keyPair
 }
 
-export function getBlockchainIdentities(
+export async function getBlockchainIdentities(
   masterKeychain: BIP32Interface,
   identitiesToGenerate: number) {
   const identityPrivateKeychainNode = getIdentityPrivateKeychain(
@@ -135,7 +135,7 @@ export function getBlockchainIdentities(
     addressIndex < identitiesToGenerate;
     addressIndex++
   ) {
-    const identityOwnerAddressNode = getIdentityOwnerAddressNode(
+    const identityOwnerAddressNode = await getIdentityOwnerAddressNode(
       identityPrivateKeychainNode,
       addressIndex
     )
