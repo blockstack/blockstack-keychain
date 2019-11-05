@@ -1,6 +1,7 @@
-import { BIP32Interface, address, networks, crypto } from 'bitcoinjs-lib'
+import { BIP32Interface } from 'bitcoinjs-lib'
 import IdentityAddressOwnerNode from '../nodes/identity-address-owner-node'
 import { createSha2Hash } from 'blockstack/lib/encryption/sha2Hash'
+import { publicKeyToAddress } from 'blockstack/lib/keys'
 
 const IDENTITY_KEYCHAIN = 888
 const BLOCKSTACK_ON_BITCOIN = 0
@@ -64,13 +65,8 @@ export async function getIdentityOwnerAddressNode(
   )
 }
 
-// HDNode is no longer a part of bitcoinjs-lib
-// This function is taken from https://github.com/bitcoinjs/bitcoinjs-lib/pull/1073/files#diff-1f03b6ff764c499bfbdf841bf8fc113eR10
-export function getAddress(node: BIP32Interface) {
-  return address.toBase58Check(
-    crypto.hash160(node.publicKey),
-    networks.bitcoin.pubKeyHash
-  )
+export async function getAddress(node: BIP32Interface) {
+  return publicKeyToAddress(node.publicKey)
 }
 
 export function hashCode(string: string) {
@@ -92,8 +88,8 @@ export interface IdentityKeyPair {
   salt: string
 }
 
-export function deriveIdentityKeyPair(identityOwnerAddressNode: IdentityAddressOwnerNode): IdentityKeyPair {
-  const address = identityOwnerAddressNode.getAddress()
+export async function deriveIdentityKeyPair(identityOwnerAddressNode: IdentityAddressOwnerNode): Promise<IdentityKeyPair> {
+  const address = await identityOwnerAddressNode.getAddress()
   const identityKey = identityOwnerAddressNode.getIdentityKey()
   const identityKeyID = identityOwnerAddressNode.getIdentityKeyID()
   const appsNode = identityOwnerAddressNode.getAppsNode()
@@ -123,7 +119,7 @@ export async function getBlockchainIdentities(
   const bitcoinPublicKeychainNode = bitcoinPrivateKeychainNode.neutered()
   const bitcoinPublicKeychain = bitcoinPublicKeychainNode.toBase58()
 
-  const firstBitcoinAddress = getAddress(getBitcoinAddressNode(bitcoinPublicKeychainNode))
+  const firstBitcoinAddress = await getAddress(getBitcoinAddressNode(bitcoinPublicKeychainNode))
 
   const identityAddresses = []
   const identityKeypairs = []
@@ -139,7 +135,7 @@ export async function getBlockchainIdentities(
       identityPrivateKeychainNode,
       addressIndex
     )
-    const identityKeyPair = deriveIdentityKeyPair(
+    const identityKeyPair = await deriveIdentityKeyPair(
       identityOwnerAddressNode
     )
     identityKeypairs.push(identityKeyPair)

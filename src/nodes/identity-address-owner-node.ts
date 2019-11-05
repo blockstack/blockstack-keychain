@@ -39,8 +39,7 @@ export default class IdentityAddressOwnerNode {
     return new AppsNode(this.hdNode.deriveHardened(APPS_NODE_INDEX), this.salt)
   }
 
-  getAddress() {
-    // return this.hdNode.getAddress()
+  async getAddress() {
     return getAddress(this.hdNode)
   }
 

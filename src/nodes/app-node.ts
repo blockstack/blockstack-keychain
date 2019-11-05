@@ -18,7 +18,7 @@ export default class AppNode {
     return this.hdNode.privateKey.toString('hex')
   }
 
-  getAddress() {
+  async getAddress() {
     return getAddress(this.hdNode)
   }
 }
