@@ -7,7 +7,7 @@ import { decryptMnemonic } from 'blockstack/lib/encryption/wallet'
  * @param password - Password for data
  * @return the raw mnemonic phrase
  */
-export async function decrypt(dataBuffer: Buffer, password: string): Promise<string> {
+export async function decrypt(dataBuffer: Buffer | string, password: string): Promise<string> {
   const result = await decryptMnemonic(dataBuffer, password, triplesecDecrypt)
   return result
 }
