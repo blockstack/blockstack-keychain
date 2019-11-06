@@ -991,6 +991,13 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.17.4.tgz#8993a4fe3c4022fda66bf4ea660d615fc5659c6f"
   integrity sha512-F2pgg+LcIr/elguz+x+fdBX5KeZXGUOp7TV8M0TVIrDezYLFRNt8oMTyps0VQ1kj5WGGoR18RdxnRDHXrIFHMQ==
 
+"@types/randombytes@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/randombytes/-/randombytes-2.0.0.tgz#0087ff5e60ae68023b9bc4398b406fea7ad18304"
+  integrity sha512-bz8PhAVlwN72vqefzxa14DKNT8jK/mV66CSjwdVQM/k3Th3EPKfUtdMniwZgMedQTFuywAsfjnZsg+pEnltaMA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/resolve@0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@types/resolve/-/resolve-0.0.8.tgz#f26074d238e02659e323ce1a13d041eee280e194"
@@ -1612,14 +1619,15 @@ bitcoinjs-lib@^5.1.6:
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
-blockstack@21.0.0-alpha.1:
-  version "21.0.0-alpha.1"
-  resolved "https://registry.yarnpkg.com/blockstack/-/blockstack-21.0.0-alpha.1.tgz#79b98230dae366d287c1817e29b0b52e9115d471"
-  integrity sha512-i/fJZAx2K5apggavIHqdhIEbcOZVyoa2FGifQdDzlth40rguWNI+84v/LSqLsOaWTyqwZeCauI+kvRZaortipQ==
+blockstack@21.0.0-alpha.2:
+  version "21.0.0-alpha.2"
+  resolved "https://registry.yarnpkg.com/blockstack/-/blockstack-21.0.0-alpha.2.tgz#1f223387df24b5770d5e7ec4031df52b8014ca11"
+  integrity sha512-I7FQTYU78H/Eok/is0G79dSaQ7tD0DuKGKRCihHDdAKHYGeiTIZyHQ8fyK3NL8yEoRzRoIlCPEefCQgh/no6hg==
   dependencies:
     "@types/cheerio" "^0.22.13"
     "@types/elliptic" "^6.4.10"
     "@types/node" "^12.7.12"
+    "@types/randombytes" "^2.0.0"
     ajv "^4.11.5"
     bip39 "^3.0.2"
     bitcoinjs-lib "^5.1.6"

@@ -49,7 +49,7 @@
   "dependencies": {
     "bip39": "^3.0.2",
     "bitcoinjs-lib": "^5.1.6",
-    "blockstack": "21.0.0-alpha.1",
+    "blockstack": "21.0.0-alpha.2",
     "jsontokens": "^3.0.0-alpha.0",
     "triplesec": "^3.0.27"
   }
