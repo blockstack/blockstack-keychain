@@ -4,7 +4,7 @@ import { makeAuthResponse } from 'blockstack/lib/auth/authMessages'
 
 import { IdentityKeyPair } from './utils/index'
 import { getHubPrefix, makeGaiaAssociationToken } from './utils/gaia'
-import AppsNode from './nodes/apps-node'
+import IdentityAddressOwnerNode from './nodes/identity-address-owner-node'
 
 export default class Identity {
   public keyPair: IdentityKeyPair
@@ -48,10 +48,8 @@ export default class Identity {
 
   async appPrivateKey(appDomain: string) {
     const { salt, appsNodeKey } = this.keyPair
-    const appsNode = new AppsNode(bip32.fromBase58(appsNodeKey), salt)
-    const appNode = await appsNode.getAppNode(appDomain)
-    const appPrivateKey = appNode.getAppPrivateKey()
-    return appPrivateKey
+    const appsNode = new IdentityAddressOwnerNode(bip32.fromBase58(appsNodeKey), salt)
+    return appsNode.getAppPrivateKey(appDomain)
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

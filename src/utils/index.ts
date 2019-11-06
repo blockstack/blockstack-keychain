@@ -69,17 +69,6 @@ export async function getAddress(node: BIP32Interface) {
   return publicKeyToAddress(node.publicKey)
 }
 
-export function hashCode(string: string) {
-  let hash = 0
-  if (string.length === 0) return hash
-  for (let i = 0; i < string.length; i++) {
-    const character = string.charCodeAt(i)
-    hash = (hash << 5) - hash + character
-    hash &= hash
-  }
-  return hash & 0x7fffffff
-}
-
 export interface IdentityKeyPair {
   key: string
   keyID: string
@@ -98,7 +87,7 @@ export async function deriveIdentityKeyPair(identityOwnerAddressNode: IdentityAd
     keyID: identityKeyID,
     address,
     appsNodeKey: appsNode.toBase58(),
-    salt: appsNode.getSalt()
+    salt: identityOwnerAddressNode.getSalt()
   }
   return keyPair
 }
