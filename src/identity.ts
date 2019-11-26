@@ -1,9 +1,10 @@
-import { fromBase58 } from 'bip32'
-import { getPublicKeyFromPrivate, makeAuthResponse } from 'blockstack'
+import { bip32 } from 'bitcoinjs-lib'
+import { getPublicKeyFromPrivate } from 'blockstack/lib/keys'
+import { makeAuthResponse } from 'blockstack/lib/auth/authMessages'
 
 import { IdentityKeyPair } from './utils/index'
 import { getHubPrefix, makeGaiaAssociationToken } from './utils/gaia'
-import AppsNode from './nodes/apps-node'
+import IdentityAddressOwnerNode from './nodes/identity-address-owner-node'
 
 export default class Identity {
   public keyPair: IdentityKeyPair
@@ -20,13 +21,13 @@ export default class Identity {
     transitPublicKey: string
     profile?: {}
   }) {
-    const appPrivateKey = this.appPrivateKey(appDomain)
+    const appPrivateKey = await this.appPrivateKey(appDomain)
     const hubPrefix = await getHubPrefix(gaiaUrl)
     const profileUrl = await this.profileUrl(hubPrefix)
     // const appBucketUrl = await getAppBucketUrl(gaiaUrl, appPrivateKey)
 
     const compressedAppPublicKey = getPublicKeyFromPrivate(appPrivateKey.slice(0, 64))
-    const associationToken = makeGaiaAssociationToken(this.keyPair.key, compressedAppPublicKey)
+    const associationToken = await makeGaiaAssociationToken(this.keyPair.key, compressedAppPublicKey)
 
     return makeAuthResponse(
       this.keyPair.key,
@@ -45,11 +46,10 @@ export default class Identity {
     )
   }
 
-  appPrivateKey(appDomain: string) {
+  async appPrivateKey(appDomain: string) {
     const { salt, appsNodeKey } = this.keyPair
-    const appsNode = new AppsNode(fromBase58(appsNodeKey), salt)
-    const appPrivateKey = appsNode.getAppNode(appDomain).getAppPrivateKey()
-    return appPrivateKey
+    const appsNode = new IdentityAddressOwnerNode(bip32.fromBase58(appsNodeKey), salt)
+    return appsNode.getAppPrivateKey(appDomain)
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await

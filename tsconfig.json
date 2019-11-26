@@ -6,7 +6,6 @@
     "declaration": true,
     "outDir": "/lib",
     "rootDir": "./src",
-    "skipLibCheck": true,
     "strict": true,
     "lib": [
       "es2017",
