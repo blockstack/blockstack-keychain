@@ -52,5 +52,8 @@
     "blockstack": "21.0.0-alpha.2",
     "jsontokens": "^3.0.0-alpha.0",
     "triplesec": "^3.0.27"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
