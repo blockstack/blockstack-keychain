@@ -1,11 +1,13 @@
 {
   "name": "@blockstack/keychain",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A package for managing Blockstack keychains",
-  "main": "dist/index.js",
-  "umd:main": "dist/keychain.umd.production.js",
-  "module": "dist/keychain.esm.js",
+  "main": "./dist/index.js",
+  "umd:main": "./dist/keychain.umd.production.js",
+  "module": "./dist/keychain.esm.js",
   "author": "Hank Stoever",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/keychain.cjs.production.min.js",
   "license": "MIT",
   "files": [
     "dist"
