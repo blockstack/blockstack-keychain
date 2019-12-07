@@ -1,17 +1,7 @@
 import { makeECPrivateKey, getPublicKeyFromPrivate } from 'blockstack/lib/keys'
 import { decryptPrivateKey } from 'blockstack/lib/auth/authMessages'
 import { decodeToken } from 'jsontokens'
-import Wallet from '../src/wallet'
-
-const getIdentity = async () => {
-  const seed = 'sound idle panel often situate develop unit text design antenna '
-    + 'vendor screen opinion balcony share trigger accuse scatter visa uniform brass '
-    + 'update opinion media'
-  const password = 'password'
-  const wallet = await Wallet.restore(password, seed)
-  const [identity] = wallet.identities
-  return identity
-}
+import { getIdentity } from './helpers'
 
 interface Decoded {
   [key: string]: any
