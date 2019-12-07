@@ -9,6 +9,7 @@ import IdentityAddressOwnerNode from './nodes/identity-address-owner-node'
 export default class Identity {
   public keyPair: IdentityKeyPair
   public address: string
+  public username?: string
 
   constructor({ keyPair, address }: { keyPair: IdentityKeyPair; address: string; }) {
     this.keyPair = keyPair
