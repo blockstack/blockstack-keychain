@@ -98,11 +98,17 @@ const sendUsernameToRegistrar = async ({
 
 interface RegisterParams {
   identity: Identity
+  /** The gaia hub URL to use for profile.json upload */
   gaiaHubUrl: string
+  /** The username portion of this subdomain, i.e. only the portion of the name before any periods */
   username: string
+  /** The "domain" used for this subdomain. Can be any of the `Subdomains` enum. */
   subdomain: Subdomains
 }
 
+/**
+ * Register a subdomain for a given identity
+ */
 export const registerSubdomain = async ({
   identity,
   gaiaHubUrl,

@@ -59,6 +59,9 @@ export default class Identity {
     return `${gaiaUrl}${this.address}/profile.json`
   }
 
+  /**
+   * Fetch existing information related to this identity, like username and profile information
+   */
   async refresh() {
     try {
       const getNamesUrl = `https://core.blockstack.org/v1/addresses/bitcoin/${this.address}`
