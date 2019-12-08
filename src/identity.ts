@@ -58,4 +58,17 @@ export default class Identity {
     // future proofing for code that may require network requests to find profile
     return `${gaiaUrl}${this.address}/profile.json`
   }
+
+  async refresh() {
+    try {
+      const getNamesUrl = `https://core.blockstack.org/v1/addresses/bitcoin/${this.address}`
+      const res = await fetch(getNamesUrl)
+      const data = await res.json()
+      const name = data.names[0]
+      this.username = name
+      return
+    } catch (error) {
+      return
+    }
+  }
 }

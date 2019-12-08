@@ -40,3 +40,23 @@ test('gets default profile URL', async () => {
   const gaiaUrl = 'https://gaia.blockstack.org/hub/'
   expect(await identity.profileUrl(gaiaUrl)).toEqual('https://gaia.blockstack.org/hub/1JeTQ5cQjsD57YGcsVFhwT7iuQUXJR6BSk/profile.json')
 })
+
+describe('refresh', () => {
+  test('can fetch names for an identity', async () => {
+    const identity = await getIdentity()
+  
+    fetchMock.once(JSON.stringify({ names: ['myname.id'] }))
+  
+    await identity.refresh()
+    expect(identity.username).toEqual('myname.id')
+  })
+  
+  test('doesnt throw is no names found', async () => {
+    const identity = await getIdentity()
+  
+    fetchMock.once(JSON.stringify({ error: 'Invalid address' }))
+  
+    await identity.refresh()
+    expect(identity.username).toEqual(undefined)
+  })
+})
