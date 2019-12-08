@@ -13,6 +13,9 @@ test('generates an auth response', async () => {
   const gaiaUrl = 'https://hub.blockstack.org'
   const transitPrivateKey = makeECPrivateKey()
   const transitPublicKey = getPublicKeyFromPrivate(transitPrivateKey)
+
+  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/' }))
+
   const authResponse = await identity.makeAuthResponse({ appDomain, gaiaUrl, transitPublicKey })
   const decoded = decodeToken(authResponse)
   const { payload } = decoded as Decoded
