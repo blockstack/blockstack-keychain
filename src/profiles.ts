@@ -10,7 +10,7 @@ export const DEFAULT_PROFILE = {
 
 const DEFAULT_PROFILE_FILE_NAME = 'profile.json'
 
-enum Subdomains {
+export enum Subdomains {
   TEST = 'test-personal.id',
   BLOCKSTACK = 'id.blockstack'
 }
@@ -113,8 +113,8 @@ export const registerSubdomain = async ({
   const profile = DEFAULT_PROFILE
   const signedProfileTokenData = await signProfileForUpload(profile, identity.keyPair)
   const profileUrl = await uploadProfile(gaiaHubUrl, identity, signedProfileTokenData)
-  const tokenFileUrl = profileUrl
-  const zoneFile = makeProfileZoneFile(username, tokenFileUrl)
+  const fullUsername = `${username}.${subdomain}`
+  const zoneFile = makeProfileZoneFile(fullUsername, profileUrl)
   await sendUsernameToRegistrar({
     username,
     subdomain,
@@ -122,6 +122,6 @@ export const registerSubdomain = async ({
     identity
   })
   // eslint-disable-next-line require-atomic-updates
-  identity.username = `${username}.${subdomain}`
+  identity.username = fullUsername
   return identity
 }
