@@ -33,7 +33,8 @@ describe('registerSubdomain', () => {
       username: 'tester',
       subdomain: Subdomains.TEST
     })
-    expect(identity.username).toEqual('tester.test-personal.id')
+    expect(identity.defaultUsername).toEqual('tester.test-personal.id')
+    expect(identity.usernames).toEqual(['tester.test-personal.id'])
     expect(fetchMock.mock.calls.length).toEqual(3)
     const [registrarUrl, fetchOpts] = fetchMock.mock.calls[2]
     expect(registrarUrl).toEqual(registrars[Subdomains.TEST].registerUrl)

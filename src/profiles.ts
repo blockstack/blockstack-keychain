@@ -128,6 +128,7 @@ export const registerSubdomain = async ({
     identity
   })
   // eslint-disable-next-line require-atomic-updates
-  identity.username = fullUsername
+  identity.defaultUsername = fullUsername
+  identity.usernames.push(fullUsername)
   return identity
 }

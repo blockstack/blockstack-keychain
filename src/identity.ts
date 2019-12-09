@@ -6,14 +6,24 @@ import { IdentityKeyPair } from './utils/index'
 import { getHubPrefix, makeGaiaAssociationToken } from './utils/gaia'
 import IdentityAddressOwnerNode from './nodes/identity-address-owner-node'
 
+interface IdentityConstructorOptions {
+  keyPair: IdentityKeyPair
+  address: string
+  usernames?: string[]
+  defaultUsername?: string
+}
+
 export default class Identity {
   public keyPair: IdentityKeyPair
   public address: string
-  public username?: string
+  public defaultUsername?: string
+  public usernames: string[]
 
-  constructor({ keyPair, address }: { keyPair: IdentityKeyPair; address: string; }) {
+  constructor({ keyPair, address, usernames, defaultUsername }: IdentityConstructorOptions) {
     this.keyPair = keyPair
     this.address = address
+    this.usernames = usernames || []
+    this.defaultUsername = defaultUsername
   }
 
   async makeAuthResponse({ appDomain, gaiaUrl, transitPublicKey, profile }: { 
@@ -67,8 +77,16 @@ export default class Identity {
       const getNamesUrl = `https://core.blockstack.org/v1/addresses/bitcoin/${this.address}`
       const res = await fetch(getNamesUrl)
       const data = await res.json()
-      const name = data.names[0]
-      this.username = name
+      const { names }: { names: string[]; } = data
+      if (names[0] && !this.defaultUsername) {
+        this.defaultUsername = names[0]
+      }
+      names.forEach((name) => {
+        const existingIndex = this.usernames.findIndex(u => u === name)
+        if (existingIndex === -1) {
+          this.usernames.push(name)
+        }
+      })
       return
     } catch (error) {
       return

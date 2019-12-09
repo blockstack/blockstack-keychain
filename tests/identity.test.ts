@@ -1,3 +1,4 @@
+import './setup'
 import { makeECPrivateKey, getPublicKeyFromPrivate } from 'blockstack/lib/keys'
 import { decryptPrivateKey } from 'blockstack/lib/auth/authMessages'
 import { decodeToken } from 'jsontokens'
@@ -48,7 +49,18 @@ describe('refresh', () => {
     fetchMock.once(JSON.stringify({ names: ['myname.id'] }))
   
     await identity.refresh()
-    expect(identity.username).toEqual('myname.id')
+    expect(identity.defaultUsername).toEqual('myname.id')
+    expect(identity.usernames).toEqual(['myname.id'])
+  })
+
+  test('can fetch multiple usernames', async () => {
+    const identity = await getIdentity()
+  
+    fetchMock.once(JSON.stringify({ names: ['myname.id', 'second.id'] }))
+  
+    await identity.refresh()
+    expect(identity.defaultUsername).toEqual('myname.id')
+    expect(identity.usernames).toEqual(['myname.id', 'second.id'])
   })
   
   test('doesnt throw is no names found', async () => {
@@ -57,6 +69,6 @@ describe('refresh', () => {
     fetchMock.once(JSON.stringify({ error: 'Invalid address' }))
   
     await identity.refresh()
-    expect(identity.username).toEqual(undefined)
+    expect(identity.defaultUsername).toEqual(undefined)
   })
 })
