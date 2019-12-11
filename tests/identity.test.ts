@@ -36,6 +36,12 @@ test('generates an app private key', async () => {
   expect(appPrivateKey).toEqual(expectedKey)
 })
 
+test('generates an app private key for a different seed', async () => {
+  const identity = await getIdentity('monster toilet shoe giggle welcome coyote enact glass copy era shed foam')
+  const appPrivateKey = await identity.appPrivateKey('https://banter.pub')
+  expect(appPrivateKey).toEqual('a7bf3ecf0dd68a23a6621c39780d6cae3776240251a7988fed9ecfda2699ffe8')
+})
+
 test('gets default profile URL', async () => {
   const identity = await getIdentity()
   const gaiaUrl = 'https://gaia.blockstack.org/hub/'
