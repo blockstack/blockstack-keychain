@@ -43,7 +43,7 @@ export default class Identity {
     return makeAuthResponse(
       this.keyPair.key,
       profile || {},
-      '',
+      this.defaultUsername || '',
       {
         profileUrl
       },
