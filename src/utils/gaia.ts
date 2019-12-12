@@ -2,6 +2,8 @@ import { TokenSigner } from 'jsontokens'
 import { getPublicKeyFromPrivate } from 'blockstack/lib/keys'
 import { randomBytes } from 'blockstack/lib/encryption/cryptoRandom'
 
+export const DEFAULT_GAIA_HUB = 'https://gaia.blockstack.org/hub/'
+
 export const getHubInfo = async (hubUrl: string) => {
   const response = await fetch(`${hubUrl}/hub_info`)
   const data = await response.json()

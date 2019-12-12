@@ -2,8 +2,30 @@ import { signProfileToken, wrapProfileToken, connectToGaiaHub, makeProfileZoneFi
 import { IdentityKeyPair } from './utils'
 import Identity from './identity'
 import { uploadToGaiaHub } from 'blockstack/lib/storage/hub'
+import { TokenInterface } from 'jsontokens/lib/decode'
 
-export const DEFAULT_PROFILE = {
+const PERSON_TYPE = 'Person'
+const CONTEXT = 'http://schema.org'
+const IMAGE_TYPE = 'ImageObject'
+
+export interface ProfileImage {
+  '@type': typeof IMAGE_TYPE
+  name: string
+  contentUrl: string
+}
+
+export interface Profile {
+  '@type': typeof PERSON_TYPE
+  '@context': typeof CONTEXT
+  apps?: {
+    [origin: string]: string
+  }
+  name?: string
+  image?: ProfileImage[]
+  [key: string]: any
+}
+
+export const DEFAULT_PROFILE: Profile = {
   '@type': 'Person',
   '@context': 'http://schema.org'
 }
@@ -14,14 +36,6 @@ export enum Subdomains {
   TEST = 'test-personal.id',
   BLOCKSTACK = 'id.blockstack'
 }
-
-// interface Registrars {
-//   [Subdomains.BLOCKSTACK]: {
-//     registerUrl: string
-//     apiUrl: string
-//   }
-//   [Subdomains.TEST]
-// }
 
 export const registrars = {
   [Subdomains.TEST]: {
@@ -131,4 +145,16 @@ export const registerSubdomain = async ({
   identity.defaultUsername = fullUsername
   identity.usernames.push(fullUsername)
   return identity
+}
+
+export const fetchProfile = async ({ identity, gaiaUrl }: { identity: Identity; gaiaUrl: string; }) => {
+  try {
+    const url = await identity.profileUrl(gaiaUrl)
+    const res = await fetch(url)
+    const json = await res.json()
+    const { decodedToken } = json[0]
+    return decodedToken.payload?.claim as Profile
+  } catch (error) {
+    return null
+  }
 }

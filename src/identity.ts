@@ -3,14 +3,20 @@ import { getPublicKeyFromPrivate } from 'blockstack/lib/keys'
 import { makeAuthResponse } from 'blockstack/lib/auth/authMessages'
 
 import { IdentityKeyPair } from './utils/index'
-import { getHubPrefix, makeGaiaAssociationToken } from './utils/gaia'
+import { getHubPrefix, makeGaiaAssociationToken, DEFAULT_GAIA_HUB } from './utils/gaia'
 import IdentityAddressOwnerNode from './nodes/identity-address-owner-node'
+import { Profile, fetchProfile } from './profiles'
 
 interface IdentityConstructorOptions {
   keyPair: IdentityKeyPair
   address: string
   usernames?: string[]
   defaultUsername?: string
+  profile?: Profile
+}
+
+interface RefreshOptions {
+  gaiaUrl: string;
 }
 
 export default class Identity {
@@ -18,19 +24,20 @@ export default class Identity {
   public address: string
   public defaultUsername?: string
   public usernames: string[]
+  public profile?: Profile
 
-  constructor({ keyPair, address, usernames, defaultUsername }: IdentityConstructorOptions) {
+  constructor({ keyPair, address, usernames, defaultUsername, profile }: IdentityConstructorOptions) {
     this.keyPair = keyPair
     this.address = address
     this.usernames = usernames || []
     this.defaultUsername = defaultUsername
+    this.profile = profile
   }
 
-  async makeAuthResponse({ appDomain, gaiaUrl, transitPublicKey, profile }: { 
+  async makeAuthResponse({ appDomain, gaiaUrl, transitPublicKey }: { 
     appDomain: string
     gaiaUrl: string
     transitPublicKey: string
-    profile?: {}
   }) {
     const appPrivateKey = await this.appPrivateKey(appDomain)
     const hubPrefix = await getHubPrefix(gaiaUrl)
@@ -42,7 +49,7 @@ export default class Identity {
 
     return makeAuthResponse(
       this.keyPair.key,
-      profile || {},
+      this.profile || {},
       this.defaultUsername || '',
       {
         profileUrl
@@ -69,24 +76,37 @@ export default class Identity {
     return `${gaiaUrl}${this.address}/profile.json`
   }
 
+  async fetchNames() {
+    const getNamesUrl = `https://core.blockstack.org/v1/addresses/bitcoin/${this.address}`
+    const res = await fetch(getNamesUrl)
+    const data = await res.json()
+    const { names }: { names: string[]; } = data
+    return names
+  }
+
   /**
    * Fetch existing information related to this identity, like username and profile information
    */
-  async refresh() {
+  async refresh(opts: RefreshOptions = { gaiaUrl: DEFAULT_GAIA_HUB }) {
     try {
-      const getNamesUrl = `https://core.blockstack.org/v1/addresses/bitcoin/${this.address}`
-      const res = await fetch(getNamesUrl)
-      const data = await res.json()
-      const { names }: { names: string[]; } = data
-      if (names[0] && !this.defaultUsername) {
-        this.defaultUsername = names[0]
-      }
-      names.forEach((name) => {
-        const existingIndex = this.usernames.findIndex(u => u === name)
-        if (existingIndex === -1) {
-          this.usernames.push(name)
+      const [names, profile] = await Promise.all([
+        this.fetchNames(),
+        fetchProfile({ identity: this, gaiaUrl: opts.gaiaUrl })
+      ])
+      if (names) {
+        if (names[0] && !this.defaultUsername) {
+          this.defaultUsername = names[0]
         }
-      })
+        names.forEach((name) => {
+          const existingIndex = this.usernames.findIndex(u => u === name)
+          if (existingIndex === -1) {
+            this.usernames.push(name)
+          }
+        })
+      }
+      if (profile) {
+        this.profile = profile
+      }
       return
     } catch (error) {
       return

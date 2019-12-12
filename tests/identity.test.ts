@@ -2,7 +2,7 @@ import './setup'
 import { makeECPrivateKey, getPublicKeyFromPrivate } from 'blockstack/lib/keys'
 import { decryptPrivateKey } from 'blockstack/lib/auth/authMessages'
 import { decodeToken } from 'jsontokens'
-import { getIdentity } from './helpers'
+import { getIdentity, profileResponse } from './helpers'
 
 interface Decoded {
   [key: string]: any
@@ -21,7 +21,7 @@ test('generates an auth response', async () => {
   const decoded = decodeToken(authResponse)
   const { payload } = decoded as Decoded
   expect(payload.profile_url).toEqual(
-    'https://gaia.blockstack.org/hub/1JeTQ5cQjsD57YGcsVFhwT7iuQUXJR6BSk/profile.json'
+    `https://gaia.blockstack.org/hub/${identity.address}/profile.json`
   )
   const appPrivateKey = await decryptPrivateKey(transitPrivateKey, payload.private_key)
   const expectedKey =
@@ -53,6 +53,7 @@ describe('refresh', () => {
     const identity = await getIdentity()
   
     fetchMock.once(JSON.stringify({ names: ['myname.id'] }))
+    fetchMock.once(JSON.stringify(profileResponse))
   
     await identity.refresh()
     expect(identity.defaultUsername).toEqual('myname.id')
@@ -63,6 +64,7 @@ describe('refresh', () => {
     const identity = await getIdentity()
   
     fetchMock.once(JSON.stringify({ names: ['myname.id', 'second.id'] }))
+    fetchMock.once(JSON.stringify(profileResponse))
   
     await identity.refresh()
     expect(identity.defaultUsername).toEqual('myname.id')
@@ -73,8 +75,21 @@ describe('refresh', () => {
     const identity = await getIdentity()
   
     fetchMock.once(JSON.stringify({ error: 'Invalid address' }))
+    fetchMock.once(JSON.stringify(profileResponse))
   
     await identity.refresh()
     expect(identity.defaultUsername).toEqual(undefined)
+  })
+
+  test('can fetch profiles', async () => {
+    const identity = await getIdentity()
+  
+    fetchMock.once(JSON.stringify({ error: 'Invalid address' }))
+    fetchMock.once(JSON.stringify(profileResponse))
+
+    await identity.refresh()
+    expect(identity.profile).toBeTruthy()
+    expect(identity.profile?.apps).toBeTruthy()
+    expect(identity.profile?.name).toBeFalsy()
   })
 })

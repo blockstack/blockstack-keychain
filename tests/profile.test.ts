@@ -8,7 +8,9 @@ describe('signProfileForUpload', () => {
   it('should create a signed JSON string', async () => {
     const identity = await getIdentity()
     const signedJSON = await signProfileForUpload(DEFAULT_PROFILE, identity.keyPair)
-    const [data] = JSON.parse(signedJSON)
+    const profile = JSON.parse(signedJSON)
+    expect(profile.length).toEqual(1)
+    const [data] = profile
     expect(data.token).not.toBeFalsy()
     const { claim } = data.decodedToken.payload
     expect(claim).toEqual(DEFAULT_PROFILE)
