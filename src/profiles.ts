@@ -2,7 +2,6 @@ import { signProfileToken, wrapProfileToken, connectToGaiaHub, makeProfileZoneFi
 import { IdentityKeyPair } from './utils'
 import Identity from './identity'
 import { uploadToGaiaHub } from 'blockstack/lib/storage/hub'
-import { TokenInterface } from 'jsontokens/lib/decode'
 
 const PERSON_TYPE = 'Person'
 const CONTEXT = 'http://schema.org'

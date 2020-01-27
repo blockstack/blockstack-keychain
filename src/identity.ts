@@ -16,7 +16,7 @@ interface IdentityConstructorOptions {
 }
 
 interface RefreshOptions {
-  gaiaUrl: string;
+  gaiaUrl: string
 }
 
 export default class Identity {
