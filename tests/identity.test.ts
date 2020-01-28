@@ -3,6 +3,8 @@ import { makeECPrivateKey, getPublicKeyFromPrivate } from 'blockstack/lib/keys'
 import { decryptPrivateKey } from 'blockstack/lib/auth/authMessages'
 import { decodeToken } from 'jsontokens'
 import { getIdentity, profileResponse } from './helpers'
+import { ecPairToAddress } from 'blockstack'
+import { ECPair } from 'bitcoinjs-lib'
 
 interface Decoded {
   [key: string]: any
@@ -27,6 +29,36 @@ test('generates an auth response', async () => {
   const expectedKey =
     '6f8b6a170f8b2ee57df5ead49b0f4c8acde05f9e1c4c6ef8223d6a42fabfa314'
   expect(appPrivateKey).toEqual(expectedKey)
+})
+
+test('adds to apps in profile if publish_data scope', async () => {
+  fetchMock.mock.calls = []
+  const identity = await getIdentity()
+  const appDomain = 'https://banter.pub'
+  const gaiaUrl = 'https://hub.blockstack.org'
+  const transitPrivateKey = makeECPrivateKey()
+  const transitPublicKey = getPublicKeyFromPrivate(transitPrivateKey)
+
+  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/' }))
+    .once(JSON.stringify({}), { status: 404 })
+    .once(JSON.stringify({}))
+
+  const authResponse = await identity.makeAuthResponse({
+    appDomain,
+    gaiaUrl,
+    transitPublicKey,
+    scopes: ['publish_data'],
+  })
+  const decoded = decodeToken(authResponse)
+  const { payload } = decoded as Decoded
+  expect(payload.profile.apps['https://banter.pub']).not.toBeFalsy()
+  const profile = JSON.parse(fetchMock.mock.calls[2][1].body)
+  const { apps } = profile[0].decodedToken.payload.claim
+  expect(apps[appDomain]).not.toBeFalsy()
+  const appPrivateKey = await decryptPrivateKey(transitPrivateKey, payload.private_key)
+  const challengeSigner = ECPair.fromPrivateKey(Buffer.from(appPrivateKey as string, 'hex'))
+  const expectedDomain = `https://gaia.blockstack.org/hub/${await ecPairToAddress(challengeSigner)}`
+  expect(apps[appDomain]).toEqual(expectedDomain)
 })
 
 test('generates an app private key', async () => {

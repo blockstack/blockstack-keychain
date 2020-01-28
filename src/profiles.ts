@@ -1,7 +1,7 @@
 import { signProfileToken, wrapProfileToken, connectToGaiaHub, makeProfileZoneFile } from 'blockstack'
 import { IdentityKeyPair } from './utils'
 import Identity from './identity'
-import { uploadToGaiaHub } from 'blockstack/lib/storage/hub'
+import { uploadToGaiaHub, GaiaHubConfig } from 'blockstack/lib/storage/hub'
 
 const PERSON_TYPE = 'Person'
 const CONTEXT = 'http://schema.org'
@@ -60,9 +60,10 @@ export async function signProfileForUpload(profile: any, keypair: IdentityKeyPai
 export async function uploadProfile(
   gaiaHubUrl: string,
   identity: Identity,
-  signedProfileTokenData: string
+  signedProfileTokenData: string,
+  gaiaHubConfig?: GaiaHubConfig,
 ) {
-  const identityHubConfig = await connectToGaiaHub(gaiaHubUrl, identity.keyPair.key)
+  const identityHubConfig = gaiaHubConfig || await connectToGaiaHub(gaiaHubUrl, identity.keyPair.key)
 
   return uploadToGaiaHub(DEFAULT_PROFILE_FILE_NAME, signedProfileTokenData, identityHubConfig, 'application/json')
 }
@@ -144,6 +145,16 @@ export const registerSubdomain = async ({
   identity.defaultUsername = fullUsername
   identity.usernames.push(fullUsername)
   return identity
+}
+
+export const signAndUploadProfile = async ({ profile, gaiaHubUrl, identity, gaiaHubConfig }: { 
+  profile: Profile
+  gaiaHubUrl: string
+  identity: Identity
+  gaiaHubConfig?: GaiaHubConfig
+}) => {
+  const signedProfileTokenData = await signProfileForUpload(profile, identity.keyPair)
+  await uploadProfile(gaiaHubUrl, identity, signedProfileTokenData, gaiaHubConfig)
 }
 
 export const fetchProfile = async ({ identity, gaiaUrl }: { identity: Identity; gaiaUrl: string; }) => {

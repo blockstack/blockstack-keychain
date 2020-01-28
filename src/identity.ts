@@ -1,11 +1,12 @@
-import { bip32 } from 'bitcoinjs-lib'
+import { bip32, ECPair } from 'bitcoinjs-lib'
 import { getPublicKeyFromPrivate } from 'blockstack/lib/keys'
 import { makeAuthResponse } from 'blockstack/lib/auth/authMessages'
 
 import { IdentityKeyPair } from './utils/index'
-import { getHubPrefix, makeGaiaAssociationToken, DEFAULT_GAIA_HUB } from './utils/gaia'
+import { makeGaiaAssociationToken, DEFAULT_GAIA_HUB, getHubInfo, connectToGaiaHubWithConfig } from './utils/gaia'
 import IdentityAddressOwnerNode from './nodes/identity-address-owner-node'
-import { Profile, fetchProfile } from './profiles'
+import { Profile, fetchProfile, DEFAULT_PROFILE, signAndUploadProfile } from './profiles'
+import { ecPairToAddress } from 'blockstack'
 
 interface IdentityConstructorOptions {
   keyPair: IdentityKeyPair
@@ -34,14 +35,31 @@ export default class Identity {
     this.profile = profile
   }
 
-  async makeAuthResponse({ appDomain, gaiaUrl, transitPublicKey }: { 
+  async makeAuthResponse({ appDomain, gaiaUrl, transitPublicKey, scopes = [] }: { 
     appDomain: string
     gaiaUrl: string
     transitPublicKey: string
+    scopes?: string[]
   }) {
     const appPrivateKey = await this.appPrivateKey(appDomain)
-    const hubPrefix = await getHubPrefix(gaiaUrl)
-    const profileUrl = await this.profileUrl(hubPrefix)
+    const hubInfo = await getHubInfo(gaiaUrl)
+    const profileUrl = await this.profileUrl(hubInfo.read_url_prefix)
+    if (scopes.includes('publish_data')) {
+      const profile = this.profile || await fetchProfile({ identity: this, gaiaUrl: hubInfo.read_url_prefix }) || DEFAULT_PROFILE
+      // console.log(profile)
+      if (!profile.apps) {
+        profile.apps = {}
+      }
+      const challengeSigner = ECPair.fromPrivateKey(Buffer.from(appPrivateKey, 'hex'))
+      profile.apps[appDomain] = `${hubInfo.read_url_prefix}${await ecPairToAddress(challengeSigner)}`
+      const gaiaHubConfig = await connectToGaiaHubWithConfig({
+        hubInfo,
+        privateKey: this.keyPair.key,
+        gaiaHubUrl: gaiaUrl,
+      })
+      await signAndUploadProfile({ profile, identity: this, gaiaHubUrl: gaiaUrl, gaiaHubConfig })
+      this.profile = profile
+    }
     // const appBucketUrl = await getAppBucketUrl(gaiaUrl, appPrivateKey)
 
     const compressedAppPublicKey = getPublicKeyFromPrivate(appPrivateKey.slice(0, 64))
