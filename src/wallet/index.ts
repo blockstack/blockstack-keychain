@@ -6,8 +6,28 @@ import { getBlockchainIdentities, IdentityKeyPair, makeIdentity } from '../utils
 import { encrypt} from '../encryption/encrypt'
 import Identity from '../identity'
 import { decrypt } from '../encryption/decrypt'
+import { connectToGaiaHub } from 'blockstack'
 
 const CONFIG_INDEX = 45
+
+interface ConfigApp {
+  origin: string
+  scopes: string[]
+  lastLoginAt: number
+  appIcon: string
+  name: string
+}
+
+interface ConfigIdentity {
+  username?: string
+  apps: {
+    [origin: string]: ConfigApp
+  }
+}
+
+export interface WalletConfig {
+  identities: ConfigIdentity[]
+}
 
 export interface ConstructorOptions {
   identityPublicKeychain: string
@@ -29,6 +49,7 @@ export class Wallet {
   identityPublicKeychain: string
   identities: Identity[]
   configPrivateKey: string
+  walletConfig?: WalletConfig
 
   constructor({
     encryptedBackupPhrase,
@@ -88,6 +109,20 @@ export class Wallet {
     this.identityKeypairs.push(identity.keyPair)
     this.identityAddresses.push(identity.address)
     return identity
+  }
+
+  async fetchConfig(gaiaHubUrl: string): Promise<WalletConfig | null> {
+    try {
+      const gaiaConfig = await connectToGaiaHub(gaiaHubUrl, this.configPrivateKey)
+      // await putFile('wallet-config.json', JSON.stringify(this.wall))
+      const response = await fetch(`${gaiaConfig.url_prefix}/${gaiaConfig.address}/wallet-config.json`)
+      const config: WalletConfig = await response.json() 
+      this.walletConfig = config
+      return config
+    } catch (error) {
+      // console.error(error)
+      return null
+    }
   }
 }
 

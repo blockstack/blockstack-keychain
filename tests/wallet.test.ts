@@ -1,4 +1,5 @@
-import Wallet from '../src/wallet'
+import './setup'
+import Wallet, { WalletConfig } from '../src/wallet'
 import { decrypt } from '../src/encryption/decrypt'
 import { ECPair } from 'bitcoinjs-lib'
 
@@ -62,4 +63,44 @@ describe('Restoring a wallet', () => {
     const node = ECPair.fromPrivateKey(Buffer.from(wallet.configPrivateKey, 'hex'))
     expect(node.privateKey).not.toBeFalsy()
   })
+})
+
+test('returns null if no config in gaia', async () => {
+  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
+    .once('', { status: 404 })
+  const wallet = await Wallet.generate('password')
+  const config = await wallet.fetchConfig('https://gaia.blockstack.org')
+  expect(config).toBeFalsy()
+  expect(wallet.walletConfig).toBeFalsy()
+  expect(fetchMock.mock.calls.length).toEqual(2)
+})
+
+test('returns config if present', async () => {
+  const stubConfig: WalletConfig = {
+    identities: [{
+      username: 'hankstoever.id',
+      apps: {
+        'http://localhost:3000': {
+          origin: 'http://localhost:3000',
+          scopes: ['read_write'],
+          name: 'Tester',
+          appIcon: 'http://example.com/icon.png',
+          lastLoginAt: new Date().getTime()
+        }
+      }
+    }]
+  }
+
+  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
+    .once(JSON.stringify(stubConfig))
+
+  const wallet = await Wallet.generate('password')
+  const config = await wallet.fetchConfig('https://gaia.blockstack.org')
+  expect(config).not.toBeFalsy()
+  if (!config) {
+    throw 'Must have config present'
+  }
+  expect(config.identities.length).toEqual(1)
+  const identity = config.identities[0]
+  expect(identity.apps['http://localhost:3000']).toEqual(stubConfig.identities[0].apps['http://localhost:3000'])  
 })
