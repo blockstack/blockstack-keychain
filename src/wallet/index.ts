@@ -2,10 +2,12 @@ import { generateMnemonic, mnemonicToSeed } from 'bip39'
 import { bip32, BIP32Interface } from 'bitcoinjs-lib'
 import { randomBytes } from 'blockstack/lib/encryption/cryptoRandom'
 
-import { getBlockchainIdentities, IdentityKeyPair, makeIdentity } from './utils'
-import { encrypt} from './encryption/encrypt'
-import Identity from './identity'
-import { decrypt } from './encryption/decrypt'
+import { getBlockchainIdentities, IdentityKeyPair, makeIdentity } from '../utils'
+import { encrypt} from '../encryption/encrypt'
+import Identity from '../identity'
+import { decrypt } from '../encryption/decrypt'
+
+const CONFIG_INDEX = 45
 
 export interface ConstructorOptions {
   identityPublicKeychain: string
@@ -15,6 +17,7 @@ export interface ConstructorOptions {
   identityAddresses: string[]
   encryptedBackupPhrase: string
   identities: Identity[]
+  configPrivateKey: string
 }
 
 export class Wallet {
@@ -25,6 +28,7 @@ export class Wallet {
   identityAddresses: string[]
   identityPublicKeychain: string
   identities: Identity[]
+  configPrivateKey: string
 
   constructor({
     encryptedBackupPhrase,
@@ -33,7 +37,8 @@ export class Wallet {
     firstBitcoinAddress,
     identityKeypairs,
     identityAddresses,
-    identities
+    identities,
+    configPrivateKey
   }: ConstructorOptions) {
     this.encryptedBackupPhrase = encryptedBackupPhrase
     this.identityPublicKeychain = identityPublicKeychain
@@ -42,6 +47,7 @@ export class Wallet {
     this.identityKeypairs = identityKeypairs
     this.identityAddresses = identityAddresses
     this.identities = identities.map((identity) => new Identity(identity))
+    this.configPrivateKey = configPrivateKey
   }
 
   static async generate(password: string) {
@@ -63,9 +69,11 @@ export class Wallet {
   }
 
   static async createAccount(encryptedBackupPhrase: string, masterKeychain: BIP32Interface, identitiesToGenerate = 1) {
+    const configPrivateKey = masterKeychain.deriveHardened(CONFIG_INDEX).privateKey?.toString('hex') as string
     const walletAttrs = await getBlockchainIdentities(masterKeychain, identitiesToGenerate)
     return new this({
       ...walletAttrs,
+      configPrivateKey,
       encryptedBackupPhrase
     })
   }

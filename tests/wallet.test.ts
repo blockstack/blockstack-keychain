@@ -1,5 +1,6 @@
 import Wallet from '../src/wallet'
 import { decrypt } from '../src/encryption/decrypt'
+import { ECPair } from 'bitcoinjs-lib'
 
 describe('Restoring a wallet', () => {
   test('restores an existing wallet and keychain', async () => {
@@ -53,5 +54,12 @@ describe('Restoring a wallet', () => {
     const restored = await Wallet.restore(password, backupPhrase)
 
     expect(restored.identityPublicKeychain).toEqual(generated.identityPublicKeychain)
+  })
+
+  test('generates a config private key', async () => {
+    const wallet = await Wallet.generate('password')
+    expect(wallet.configPrivateKey).not.toBeFalsy()
+    const node = ECPair.fromPrivateKey(Buffer.from(wallet.configPrivateKey, 'hex'))
+    expect(node.privateKey).not.toBeFalsy()
   })
 })
