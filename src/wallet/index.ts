@@ -7,6 +7,7 @@ import { encrypt} from '../encryption/encrypt'
 import Identity from '../identity'
 import { decrypt } from '../encryption/decrypt'
 import { connectToGaiaHub } from 'blockstack'
+import { GaiaHubConfig, uploadToGaiaHub } from 'blockstack/lib/storage/hub'
 
 const CONFIG_INDEX = 45
 
@@ -111,9 +112,12 @@ export class Wallet {
     return identity
   }
 
-  async fetchConfig(gaiaHubUrl: string): Promise<WalletConfig | null> {
+  async createGaiaConfig(gaiaHubUrl: string) {
+    return connectToGaiaHub(gaiaHubUrl, this.configPrivateKey)
+  }
+
+  async fetchConfig(gaiaConfig: GaiaHubConfig): Promise<WalletConfig | null> {
     try {
-      const gaiaConfig = await connectToGaiaHub(gaiaHubUrl, this.configPrivateKey)
       // await putFile('wallet-config.json', JSON.stringify(this.wall))
       const response = await fetch(`${gaiaConfig.url_prefix}/${gaiaConfig.address}/wallet-config.json`)
       const config: WalletConfig = await response.json() 
@@ -123,6 +127,22 @@ export class Wallet {
       // console.error(error)
       return null
     }
+  }
+
+  async getOrCreateConfig(gaiaConfig: GaiaHubConfig): Promise<WalletConfig> {
+    const config = await this.fetchConfig(gaiaConfig)
+    if (config) {
+      return config
+    }
+    const newConfig: WalletConfig = {
+      identities: [{
+        username: this.identities[0].defaultUsername,
+        apps: {}
+      }]
+    }
+    await uploadToGaiaHub('wallet-config.json', JSON.stringify(newConfig), gaiaConfig, 'application/json')
+    this.walletConfig = newConfig
+    return newConfig
   }
 }
 

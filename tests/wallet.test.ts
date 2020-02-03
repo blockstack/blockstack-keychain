@@ -69,7 +69,8 @@ test('returns null if no config in gaia', async () => {
   fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
     .once('', { status: 404 })
   const wallet = await Wallet.generate('password')
-  const config = await wallet.fetchConfig('https://gaia.blockstack.org')
+  const hubConfig = await wallet.createGaiaConfig('https://gaia.blockstack.org')
+  const config = await wallet.fetchConfig(hubConfig)
   expect(config).toBeFalsy()
   expect(wallet.walletConfig).toBeFalsy()
   expect(fetchMock.mock.calls.length).toEqual(2)
@@ -95,7 +96,8 @@ test('returns config if present', async () => {
     .once(JSON.stringify(stubConfig))
 
   const wallet = await Wallet.generate('password')
-  const config = await wallet.fetchConfig('https://gaia.blockstack.org')
+  const hubConfig = await wallet.createGaiaConfig('https://gaia.blockstack.org')
+  const config = await wallet.fetchConfig(hubConfig)
   expect(config).not.toBeFalsy()
   if (!config) {
     throw 'Must have config present'
@@ -103,4 +105,16 @@ test('returns config if present', async () => {
   expect(config.identities.length).toEqual(1)
   const identity = config.identities[0]
   expect(identity.apps['http://localhost:3000']).toEqual(stubConfig.identities[0].apps['http://localhost:3000'])  
+})
+
+test.only('creates a config', async () => {
+  fetchMock.mockClear()
+  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
+    .once('', { status: 404 })
+    .once(JSON.stringify({ publicUrl: 'asdf' }))
+  const wallet = await Wallet.generate('password')
+  const hubConfig = await wallet.createGaiaConfig('https://gaia.blockstack.org')
+  const config = await wallet.getOrCreateConfig(hubConfig)
+  expect(Object.keys(config.identities[0].apps).length).toEqual(0)
+  expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual(config)
 })
