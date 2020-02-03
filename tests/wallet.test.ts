@@ -1,5 +1,5 @@
 import './setup'
-import Wallet, { WalletConfig } from '../src/wallet'
+import Wallet, { WalletConfig, ConfigApp } from '../src/wallet'
 import { decrypt } from '../src/encryption/decrypt'
 import { ECPair } from 'bitcoinjs-lib'
 
@@ -107,7 +107,7 @@ test('returns config if present', async () => {
   expect(identity.apps['http://localhost:3000']).toEqual(stubConfig.identities[0].apps['http://localhost:3000'])  
 })
 
-test.only('creates a config', async () => {
+test('creates a config', async () => {
   fetchMock.mockClear()
   fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
     .once('', { status: 404 })
@@ -117,4 +117,31 @@ test.only('creates a config', async () => {
   const config = await wallet.getOrCreateConfig(hubConfig)
   expect(Object.keys(config.identities[0].apps).length).toEqual(0)
   expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual(config)
+})
+
+test('updates wallet config', async () => {
+  fetchMock.mockClear()
+  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
+    .once('', { status: 404 })
+    .once(JSON.stringify({ publicUrl: 'asdf' }))
+    .once(JSON.stringify({ publicUrl: 'asdf' }))
+
+  const wallet = await Wallet.generate('password')
+  const gaiaConfig = await wallet.createGaiaConfig('https://gaia.blockstack.org')
+  await wallet.getOrCreateConfig(gaiaConfig)
+  const app: ConfigApp = {
+    origin: 'http://localhost:5000',
+    scopes: ['read_write'],
+    lastLoginAt: new Date().getTime(),
+    name: 'Tester',
+    appIcon: 'asdf'
+  }
+  await wallet.updateConfigWithAuth({
+    identityIndex: 0,
+    app,
+    gaiaConfig,
+  })
+  expect(fetchMock.mock.calls.length).toEqual(4)
+  const body = JSON.parse(fetchMock.mock.calls[3][1].body)
+  expect(body).toEqual(wallet.walletConfig)
 })

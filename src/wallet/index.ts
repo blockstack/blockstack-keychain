@@ -11,7 +11,7 @@ import { GaiaHubConfig, uploadToGaiaHub } from 'blockstack/lib/storage/hub'
 
 const CONFIG_INDEX = 45
 
-interface ConfigApp {
+export interface ConfigApp {
   origin: string
   scopes: string[]
   lastLoginAt: number
@@ -140,9 +140,25 @@ export class Wallet {
         apps: {}
       }]
     }
-    await uploadToGaiaHub('wallet-config.json', JSON.stringify(newConfig), gaiaConfig, 'application/json')
     this.walletConfig = newConfig
+    await this.updateConfig(gaiaConfig)
     return newConfig
+  }
+
+  async updateConfig(gaiaConfig: GaiaHubConfig): Promise<void> {
+    await uploadToGaiaHub('wallet-config.json', JSON.stringify(this.walletConfig), gaiaConfig, 'application/json')
+  }
+
+  async updateConfigWithAuth({ identityIndex, app, gaiaConfig }: { identityIndex: number; app: ConfigApp; gaiaConfig: GaiaHubConfig; }) {
+    if (!this.walletConfig) {
+      throw 'Tried to update wallet config without fetching it first'
+    }
+
+    const identity = this.walletConfig.identities[identityIndex]
+    identity.apps[app.origin] = app
+    this.walletConfig.identities[identityIndex] = identity
+    console.log('updating config')
+    await this.updateConfig(gaiaConfig)
   }
 }
 
