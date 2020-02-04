@@ -39,6 +39,7 @@ export interface ConstructorOptions {
   encryptedBackupPhrase: string
   identities: Identity[]
   configPrivateKey: string
+  walletConfig?: WalletConfig
 }
 
 export class Wallet {
@@ -60,7 +61,8 @@ export class Wallet {
     identityKeypairs,
     identityAddresses,
     identities,
-    configPrivateKey
+    configPrivateKey,
+    walletConfig
   }: ConstructorOptions) {
     this.encryptedBackupPhrase = encryptedBackupPhrase
     this.identityPublicKeychain = identityPublicKeychain
@@ -70,6 +72,7 @@ export class Wallet {
     this.identityAddresses = identityAddresses
     this.identities = identities.map((identity) => new Identity(identity))
     this.configPrivateKey = configPrivateKey
+    this.walletConfig = walletConfig
   }
 
   static async generate(password: string) {
@@ -130,15 +133,18 @@ export class Wallet {
   }
 
   async getOrCreateConfig(gaiaConfig: GaiaHubConfig): Promise<WalletConfig> {
+    if (this.walletConfig) {
+      return this.walletConfig
+    }
     const config = await this.fetchConfig(gaiaConfig)
     if (config) {
       return config
     }
     const newConfig: WalletConfig = {
-      identities: [{
-        username: this.identities[0].defaultUsername,
+      identities: this.identities.map(i => ({
+        username: i.defaultUsername,
         apps: {}
-      }]
+      }))
     }
     this.walletConfig = newConfig
     await this.updateConfig(gaiaConfig)
@@ -153,6 +159,15 @@ export class Wallet {
     if (!this.walletConfig) {
       throw 'Tried to update wallet config without fetching it first'
     }
+
+    this.identities.forEach((identity, index) => {
+      if (!this.walletConfig?.identities[index]) {
+        this.walletConfig?.identities.push({
+          username: identity.defaultUsername,
+          apps: {}
+        })
+      }
+    })
 
     const identity = this.walletConfig.identities[identityIndex]
     identity.apps[app.origin] = app
