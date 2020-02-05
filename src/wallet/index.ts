@@ -2,7 +2,7 @@ import { generateMnemonic, mnemonicToSeed } from 'bip39'
 import { bip32, BIP32Interface } from 'bitcoinjs-lib'
 import { randomBytes } from 'blockstack/lib/encryption/cryptoRandom'
 
-import { getBlockchainIdentities, IdentityKeyPair, makeIdentity } from '../utils'
+import { getBlockchainIdentities, IdentityKeyPair, makeIdentity, assertIsTruthy } from '../utils'
 import { encrypt} from '../encryption/encrypt'
 import Identity from '../identity'
 import { decrypt } from '../encryption/decrypt'
@@ -159,10 +159,13 @@ export class Wallet {
     await uploadToGaiaHub('wallet-config.json', encrypted, gaiaConfig, 'application/json')
   }
 
-  async updateConfigWithAuth({ identityIndex, app, gaiaConfig }: { identityIndex: number; app: ConfigApp; gaiaConfig: GaiaHubConfig; }) {
-    if (!this.walletConfig) {
-      throw 'Tried to update wallet config without fetching it first'
-    }
+  async updateConfigWithAuth({ identityIndex, app, gaiaConfig }: 
+  { 
+    identityIndex: number
+    app: ConfigApp
+    gaiaConfig: GaiaHubConfig 
+  }) {
+    assertIsTruthy<WalletConfig>(this.walletConfig)
 
     this.identities.forEach((identity, index) => {
       if (!this.walletConfig?.identities[index]) {
@@ -181,9 +184,7 @@ export class Wallet {
   }
 
   async updateConfigForReuseWarning({ gaiaConfig }: { gaiaConfig: GaiaHubConfig; }) {
-    if (!this.walletConfig) {
-      throw 'Tried to update wallet config without fetching it first'
-    }
+    assertIsTruthy<WalletConfig>(this.walletConfig)
 
     this.walletConfig.hideWarningForReusingIdentity = true
 
