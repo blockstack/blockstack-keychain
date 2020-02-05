@@ -2,6 +2,7 @@ import './setup'
 import Wallet, { WalletConfig, ConfigApp } from '../src/wallet'
 import { decrypt } from '../src/encryption/decrypt'
 import { ECPair } from 'bitcoinjs-lib'
+import { decryptContent, encryptContent, getPublicKeyFromPrivate } from 'blockstack'
 
 describe('Restoring a wallet', () => {
   test('restores an existing wallet and keychain', async () => {
@@ -92,10 +93,13 @@ test('returns config if present', async () => {
     }]
   }
 
-  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
-    .once(JSON.stringify(stubConfig))
-
   const wallet = await Wallet.generate('password')
+  const publicKey = getPublicKeyFromPrivate(wallet.configPrivateKey)
+  const encrypted = await encryptContent(JSON.stringify(stubConfig), { publicKey })
+
+  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
+    .once(encrypted)
+
   const hubConfig = await wallet.createGaiaConfig('https://gaia.blockstack.org')
   const config = await wallet.fetchConfig(hubConfig)
   expect(config).not.toBeFalsy()
@@ -116,7 +120,10 @@ test('creates a config', async () => {
   const hubConfig = await wallet.createGaiaConfig('https://gaia.blockstack.org')
   const config = await wallet.getOrCreateConfig(hubConfig)
   expect(Object.keys(config.identities[0].apps).length).toEqual(0)
-  expect(JSON.parse(fetchMock.mock.calls[2][1].body)).toEqual(config)
+  const { body } = fetchMock.mock.calls[2][1]
+  console.log(body)
+  const decrypted = await decryptContent(body, { privateKey: wallet.configPrivateKey }) as string
+  expect(JSON.parse(decrypted)).toEqual(config)
 })
 
 test('updates wallet config', async () => {
@@ -143,5 +150,7 @@ test('updates wallet config', async () => {
   })
   expect(fetchMock.mock.calls.length).toEqual(4)
   const body = JSON.parse(fetchMock.mock.calls[3][1].body)
-  expect(body).toEqual(wallet.walletConfig)
+  const decrypted = await decryptContent(JSON.stringify(body), { privateKey: wallet.configPrivateKey }) as string
+  const config = JSON.parse(decrypted)
+  expect(config).toEqual(wallet.walletConfig)
 })
