@@ -154,3 +154,23 @@ test('updates wallet config', async () => {
   const config = JSON.parse(decrypted)
   expect(config).toEqual(wallet.walletConfig)
 })
+
+test('updates config for reusing id warning', async () => {
+  fetchMock.mockClear()
+  fetchMock.once(JSON.stringify({ read_url_prefix: 'https://gaia.blockstack.org/hub/', challenge_text: '["gaiahub","0","gaia-0","blockstack_storage_please_sign"]', latest_auth_version: 'v1' }))
+    .once('', { status: 404 })
+    .once(JSON.stringify({ publicUrl: 'asdf' }))
+    .once(JSON.stringify({ publicUrl: 'asdf' }))
+
+  const wallet = await Wallet.generate('password')
+  const gaiaConfig = await wallet.createGaiaConfig('https://gaia.blockstack.org')
+  await wallet.getOrCreateConfig(gaiaConfig)
+  expect(wallet.walletConfig?.hideWarningForReusingIdentity).toBeFalsy()
+  await wallet.updateConfigForReuseWarning({ gaiaConfig })
+  expect(wallet.walletConfig?.hideWarningForReusingIdentity).toBeTruthy()
+  expect(fetchMock.mock.calls.length).toEqual(4)
+  const body = JSON.parse(fetchMock.mock.calls[3][1].body)
+  const decrypted = await decryptContent(JSON.stringify(body), { privateKey: wallet.configPrivateKey }) as string
+  const config = JSON.parse(decrypted)
+  expect(config.hideWarningForReusingIdentity).toBeTruthy()
+})

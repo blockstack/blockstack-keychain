@@ -28,6 +28,7 @@ interface ConfigIdentity {
 
 export interface WalletConfig {
   identities: ConfigIdentity[]
+  hideWarningForReusingIdentity?: boolean
 }
 
 export interface ConstructorOptions {
@@ -176,6 +177,16 @@ export class Wallet {
     identity.apps[app.origin] = app
     this.walletConfig.identities[identityIndex] = identity
     console.log('updating config')
+    await this.updateConfig(gaiaConfig)
+  }
+
+  async updateConfigForReuseWarning({ gaiaConfig }: { gaiaConfig: GaiaHubConfig; }) {
+    if (!this.walletConfig) {
+      throw 'Tried to update wallet config without fetching it first'
+    }
+
+    this.walletConfig.hideWarningForReusingIdentity = true
+
     await this.updateConfig(gaiaConfig)
   }
 }
